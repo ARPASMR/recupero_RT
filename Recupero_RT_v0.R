@@ -81,13 +81,13 @@ for (IDop in 1:4){
         #  print(risposta)
         if (risposta$data$outcome==0 ){
           #costruisco update
-          inserisci<-paste("insert into M_Osservazioni_TR (IDsensore,NomeTipologia,IDoperatore,Data_e_ora,Misura,Data) VALUES")
+          inserisci<-paste("insert into M_Osservazioni_TR (IDsensore,NomeTipologia,IDoperatore,Data_e_ora,Misura,Data,IDutente) VALUES")
           df_ins<-risposta$data$sensor_data_list
           #Misura<-strsplit(df_ins$data,";")[[2]]
           aa<-as.data.frame(strsplit(as.character(df_ins$data),";"))
           Misura<-aa[2,1]
           data_change<-format(Sys.time(), "%Y-%m-%d %H:%M:%S")
-          inserisci=paste(inserisci,"(", df_ins$sensor_id,",",dQuote(NomeTipologia),",",df_ins$operator_id,",",dQuote(data_di_inizio),",",Misura,",",dQuote(data_change),")")
+          inserisci=paste(inserisci,"(", df_ins$sensor_id,",",dQuote(NomeTipologia),",",df_ins$operator_id,",",dQuote(data_di_inizio),",",Misura,",",dQuote(data_change),",58)")
           # print( inserisci)
           # send the query
           
@@ -96,12 +96,13 @@ for (IDop in 1:4){
           if (!is.na(Misura) & !is.null(Misura)){
           #  line<-readline("Mando l'Update, ok?")
             tmp <- try(dbSendQuery(mydb, inserisci), silent=TRUE)
-          }
+          
           if ('try-error' %in% class(tmp)) {
             print(tmp)
             
           }
-          dbDisconnect(mydb)
+         } 
+        dbDisconnect(mydb)
         }
         
       }

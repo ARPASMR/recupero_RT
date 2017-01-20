@@ -1,11 +1,11 @@
 # recupero RT versione beta
 #
 
-library("DBI", lib.loc="~/R/win-library/3.2")
-library("httr", lib.loc="~/R/win-library/3.2")
-library("RMySQL", lib.loc="~/R/win-library/3.2")
-library("jsonlite", lib.loc="~/R/win-library/3.2")
-library("lubridate", lib.loc="~/R/win-library/3.2")
+library("DBI")
+library("httr")
+library("RMySQL")
+library("jsonlite")
+library("lubridate")
 
 datainizio<-paste(today()-1," 00:00:00")
 datafine<-paste(today(), " 00:00:00")

@@ -7,6 +7,7 @@ library("RMySQL")
 library("jsonlite")
 library("lubridate")
 
+options(warn=0)
 datainizio<-paste(today()-1," 00:00:00")
 datafine<-paste(today(), " 00:00:00")
 b<-seq(from=as.POSIXct(datainizio),to=as.POSIXct(datafine), "10 min")
@@ -17,7 +18,7 @@ datai=dQuote(datainizio)
 dataf=dQuote(datafine)
 #mm contiene i valori delle date e tutti gli NA
 mm<-data.frame(date=b,valore="NA")
-
+data_inizio_recupero<-now()
 #rmysql.settingsfile<-"my.cnf"
 #miofile<-read.delim(rmysql.settingsfile,sep="\n")
 #rmsql.user<-miofile[1,]
@@ -48,8 +49,8 @@ richiesta_data<-paste(dQuote("data"),":{",dQuote("sensors_list"),": [{")
 
 # identifico elementi mancanti
 # se IDoperatore=2 faccio solo il minimo, ovvero solo T
-
-for (IDop in 1:4){
+conta_update<-0
+for (IDop in 1:3){
   print (paste("OPERATORE ",IDop))  
   for (i in miavista$IDsensore)  {
    # print(paste("Sensore ID ",i))
@@ -59,7 +60,8 @@ for (IDop in 1:4){
     N<-nrow(v)
     if (N>0 & N!=145){
       #se non ho 0 oppure non ne ho 145 allora mi mancano dei dati
-      print(paste("Dati mancanti per IDsensore ", i))  
+      print(paste("Dati mancanti per IDsensore ", i))
+     
       #mm$valore<-v$Misura[which(mm$date %in% v$Data_e_ora)]
       mm$valore[which(mm$date %in% v$Data_e_ora)]<-v$Misura
       #adesso mm contiene i valori NA solo per i dati mancanti
@@ -76,7 +78,7 @@ for (IDop in 1:4){
         richiesta<-paste(richiesta_header,richiesta_data,richiesta_vector)
         #  print(richiesta)
         r<-POST(url="http://10.10.0.15:9090",body=noquote(richiesta))
-        risposta<-fromJSON(content(r,as="text")) 
+        risposta<-fromJSON(content(r,as="text",encoding = "UTF-8")) 
        # print (paste("UPDATE...",jj," pacchetto su ", M))
         #  print(risposta)
         if (risposta$data$outcome==0 ){
@@ -94,9 +96,10 @@ for (IDop in 1:4){
           # line<-readline("Mando l'Update, ok?")
           mydb = dbConnect(MySQL(), user=as.character(rmsql.user),password=as.character(rmsql.pwd), dbname='METEO', host='10.10.0.6')
           if (!is.na(Misura) & !is.null(Misura)){
+            conta_update<-conta_update+1
           #  line<-readline("Mando l'Update, ok?")
             tmp <- try(dbSendQuery(mydb, inserisci), silent=TRUE)
-          
+           
           if ('try-error' %in% class(tmp)) {
             print(tmp)
             
@@ -104,11 +107,17 @@ for (IDop in 1:4){
          } 
         dbDisconnect(mydb)
         }
-        
+       
       }
-      
+      print(paste("...numero di dati inseriti:",conta_update))
+      msg1='logger -is -p user.info "RecuperoRT: Sensore "'
+      msg2= '" pacchetti" -t "RecuperoRT"'
+      msg<-paste(msg1,i,conta_update,msg2)
+      print(msg)
+      system(msg,intern=FALSE)
+      conta_update<-0
     }
     
   }
 }
-
+print(paste("Inizio il ",data_inizio_recupero," e fine il ", now()))

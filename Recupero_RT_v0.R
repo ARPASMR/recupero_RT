@@ -61,7 +61,7 @@ for (IDop in 1:4){
     N<-nrow(v)
     if (N>0 & N!=145){
       #se non ho 0 oppure non ne ho 145 allora mi mancano dei dati
-      print(paste("Dati mancanti per IDsensore ", i))
+#      print(paste("Dati mancanti per IDsensore ", i))
      
       #mm$valore<-v$Misura[which(mm$date %in% v$Data_e_ora)]
       mm$valore[which(mm$date %in% v$Data_e_ora)]<-v$Misura
@@ -111,15 +111,15 @@ for (IDop in 1:4){
         }
        
       }
-      print(paste("...numero di dati inseriti:",conta_update))
-      msg1='logger -is -p user.info "RecuperoRT: Sensore "'
-      msg2= '" pacchetti" -t "RecuperoRT"'
+#      print(paste("...numero di dati inseriti:",conta_update))
+      msg1="RecuperoRT: Sensore "
+      msg2= " pacchetti"
       msg<-paste(msg1,i,conta_update,msg2)
       print(msg)
-      system(msg,intern=FALSE)
+#      system(msg,intern=FALSE)
       conta_update<-0
     }
     
   }
 }
-print(paste("Inizio il ",data_inizio_recupero," e fine il ", now()))
+print(paste("Recupero_RT: inizio il ",data_inizio_recupero," e fine il ", now()))

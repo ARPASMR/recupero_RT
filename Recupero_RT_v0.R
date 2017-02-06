@@ -32,7 +32,8 @@ rs = dbSendQuery(mydb, myquerydati)
 mieidati=fetch(rs,-1)
 vista=dbSendQuery(mydb,"select * from vw_rt10 where AggregazioneTemporale=10")
 miavista=fetch(vista,-1)
-dbDisconnect(mydb)
+# disconnessione da dB 
+#dbDisconnect(mydb)
 
 
 
@@ -50,7 +51,7 @@ richiesta_data<-paste(dQuote("data"),":{",dQuote("sensors_list"),": [{")
 # identifico elementi mancanti
 # se IDoperatore=2 faccio solo il minimo, ovvero solo T
 conta_update<-0
-for (IDop in 1:3){
+for (IDop in 1:4){
   print (paste("OPERATORE ",IDop))  
   for (i in miavista$IDsensore)  {
    # print(paste("Sensore ID ",i))
@@ -94,7 +95,7 @@ for (IDop in 1:3){
           # send the query
           
           # line<-readline("Mando l'Update, ok?")
-          mydb = dbConnect(MySQL(), user=as.character(rmsql.user),password=as.character(rmsql.pwd), dbname='METEO', host='10.10.0.6')
+#          mydb = dbConnect(MySQL(), user=as.character(rmsql.user),password=as.character(rmsql.pwd), dbname='METEO', host='10.10.0.6')
           if (!is.na(Misura) & !is.null(Misura)){
             conta_update<-conta_update+1
           #  line<-readline("Mando l'Update, ok?")
@@ -105,7 +106,8 @@ for (IDop in 1:3){
             
           }
          } 
-        dbDisconnect(mydb)
+#  disconnessione da dB        
+#        dbDisconnect(mydb)
         }
        
       }

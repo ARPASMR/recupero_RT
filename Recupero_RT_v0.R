@@ -34,6 +34,9 @@ vista=dbSendQuery(mydb,"select * from vw_rt10 where AggregazioneTemporale=10")
 miavista=fetch(vista,-1)
 # disconnessione da dB 
 #dbDisconnect(mydb)
+#chiedo chi sono e da dove chiamo
+msg<-"hostname"
+whoami<-system(msg,intern=FALSE)
 
 
 
@@ -96,7 +99,12 @@ for (IDop in 1:4){
           
           # line<-readline("Mando l'Update, ok?")
 #          mydb = dbConnect(MySQL(), user=as.character(rmsql.user),password=as.character(rmsql.pwd), dbname='METEO', host='10.10.0.6')
-          if (!is.na(Misura) & !is.null(Misura)){
+          condizione<-!is.na(Misura) & !is.null(Misura)
+#          print(condizione)
+          if (!is.logical(condizione)){
+              condizione<-FALSE
+          }
+          if (condizione){
             conta_update<-conta_update+1
           #  line<-readline("Mando l'Update, ok?")
             tmp <- try(dbSendQuery(mydb, inserisci), silent=TRUE)
@@ -112,11 +120,11 @@ for (IDop in 1:4){
        
       }
 #      print(paste("...numero di dati inseriti:",conta_update))
-      msg1="RecuperoRT: Sensore "
-      msg2= " pacchetti"
+      msg1='logger -is -p user.info "RecuperoRT: Sensore "'
+      msg2= '" pacchetti" -t "RecuperoRT"'
       msg<-paste(msg1,i,conta_update,msg2)
       print(msg)
-#      system(msg,intern=FALSE)
+      system(msg,intern=FALSE)
       conta_update<-0
     }
     

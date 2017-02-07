@@ -38,18 +38,9 @@ miavista=fetch(vista,-1)
 msg<-"hostname"
 whoami<-system(msg,intern=FALSE)
 
-
-
-
 #inizializzo richiesta
 richiesta_header<-paste("{",dQuote("header"),": {",dQuote("id"),": 10},")
 richiesta_data<-paste(dQuote("data"),":{",dQuote("sensors_list"),": [{")
-
-
-
-
-
-
 
 # identifico elementi mancanti
 # se IDoperatore=2 faccio solo il minimo, ovvero solo T
@@ -87,20 +78,18 @@ for (IDop in 1:4){
         #  print(risposta)
         if (risposta$data$outcome==0 ){
           #costruisco update
-          inserisci<-paste("insert into M_Osservazioni_TR (IDsensore,NomeTipologia,IDoperatore,Data_e_ora,Misura,Data,IDutente) VALUES")
+          inserisci<-paste("insert into M_Osservazioni_TR (IDsensore,NomeTipologia,IDoperatore,Data_e_ora,Misura,Data,IDutente,Autore) VALUES")
           df_ins<-risposta$data$sensor_data_list
           #Misura<-strsplit(df_ins$data,";")[[2]]
           aa<-as.data.frame(strsplit(as.character(df_ins$data),";"))
-          Misura<-aa[2,1]
+          #forzo il fatto che in Misura ci deve essere un valore numerico così evito il vettore logico a lunghezza 0
+          Misura<-as.double(aa[2,1])
           data_change<-format(Sys.time(), "%Y-%m-%d %H:%M:%S")
-          inserisci=paste(inserisci,"(", df_ins$sensor_id,",",dQuote(NomeTipologia),",",df_ins$operator_id,",",dQuote(data_di_inizio),",",Misura,",",dQuote(data_change),",58)")
+          inserisci=paste(inserisci,"(", df_ins$sensor_id,",",dQuote(NomeTipologia),",",df_ins$operator_id,",",dQuote(data_di_inizio),",",Misura,",",dQuote(data_change),",",58,dQuote(whoami),")")
           # print( inserisci)
           # send the query
-          
-          # line<-readline("Mando l'Update, ok?")
-#          mydb = dbConnect(MySQL(), user=as.character(rmsql.user),password=as.character(rmsql.pwd), dbname='METEO', host='10.10.0.6')
+          # condizione è una variabile logica che però può tornare valore a lunghezza zero 
           condizione<-!is.na(Misura) & !is.null(Misura)
-#          print(condizione)
           if (!is.logical(condizione)){
               condizione<-FALSE
           }
@@ -109,16 +98,14 @@ for (IDop in 1:4){
           #  line<-readline("Mando l'Update, ok?")
             tmp <- try(dbSendQuery(mydb, inserisci), silent=TRUE)
            
-          if ('try-error' %in% class(tmp)) {
-            print(tmp)
+               if ('try-error' %in% class(tmp)) {
+                    print(tmp)
             
-          }
-         } 
-#  disconnessione da dB        
-#        dbDisconnect(mydb)
+               }
+          } 
         }
        
-      }
+      } #fine del ciclo sugli M elementi mancanti
 #      print(paste("...numero di dati inseriti:",conta_update))
       msg1='logger -is -p user.info "RecuperoRT: Sensore "'
       msg2= '" pacchetti" -t "RecuperoRT"'
@@ -128,6 +115,6 @@ for (IDop in 1:4){
       conta_update<-0
     }
     
-  }
-}
+  } #fine del ciclo sui sensori
+}   # fine del ciclo sugli IDoperatore
 print(paste("Recupero_RT: inizio il ",data_inizio_recupero," e fine il ", now()))

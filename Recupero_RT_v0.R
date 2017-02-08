@@ -36,7 +36,7 @@ miavista=fetch(vista,-1)
 #dbDisconnect(mydb)
 #chiedo chi sono e da dove chiamo
 msg<-"hostname"
-whoami<-system(msg,intern=FALSE)
+whoami<-system(msg,intern=TRUE)
 
 #inizializzo richiesta
 richiesta_header<-paste("{",dQuote("header"),": {",dQuote("id"),": 10},")
@@ -90,8 +90,8 @@ for (IDop in 1:4){
           # send the query
           # condizione è una variabile logica che però può tornare valore a lunghezza zero 
           condizione<-!is.na(Misura) & !is.null(Misura)
-          if (!is.logical(condizione)){
-              condizione<-FALSE
+          if (!is.logical(condizione)| length(condizione)==0 ){
+              condizione<-FALSE #forzo condizione ad essere un valore logico
           }
           if (condizione){
             conta_update<-conta_update+1

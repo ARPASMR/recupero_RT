@@ -83,9 +83,9 @@ for (IDop in 1:4){
           #Misura<-strsplit(df_ins$data,";")[[2]]
           aa<-as.data.frame(strsplit(as.character(df_ins$data),";"))
           #forzo il fatto che in Misura ci deve essere un valore numerico così evito il vettore logico a lunghezza 0
-          Misura<-as.double(aa[2,1])
+          Misura<-aa[2,1]
           data_change<-format(Sys.time(), "%Y-%m-%d %H:%M:%S")
-          inserisci=paste(inserisci,"(", df_ins$sensor_id,",",dQuote(NomeTipologia),",",df_ins$operator_id,",",dQuote(data_di_inizio),",",Misura,",",dQuote(data_change),",",58,dQuote(whoami),")")
+          inserisci=paste(inserisci,"(", df_ins$sensor_id,",",dQuote(NomeTipologia),",",df_ins$operator_id,",",dQuote(data_di_inizio),",",Misura,",",dQuote(data_change),",",58,",",dQuote(whoami),")")
           # print( inserisci)
           # send the query
           # condizione è una variabile logica che però può tornare valore a lunghezza zero 

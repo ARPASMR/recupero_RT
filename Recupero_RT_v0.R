@@ -9,8 +9,8 @@ library("jsonlite")
 library("lubridate")
 
 options(warn=0)
-datainizio<-strptime(now()-3600,"%F %H:%M")
-datafine<-strptime(now(),"%F %H:%M")
+datainizio<-strptime(now("Europe/Rome")-3600,"%F %H:%M")
+datafine<-strptime(now("Europe/Rome"),"%F %H:%M")
 b<-seq(from=as.POSIXct(datainizio),to=as.POSIXct(datafine), "10 min")
 df<-data.frame(date=b)
 # virgolette dritte

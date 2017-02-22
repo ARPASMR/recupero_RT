@@ -1,5 +1,6 @@
 # recupero RT versione beta
-#
+# by MM
+# questa versione è studiata per fare il recupero di 1h ogni 10 min
 
 library("DBI")
 library("httr")
@@ -8,8 +9,8 @@ library("jsonlite")
 library("lubridate")
 
 options(warn=0)
-datainizio<-paste(today()-1," 00:00:00")
-datafine<-paste(today(), " 00:00:00")
+datainizio<-strptime(now()-3600,"%F %H:%M")
+datafine<-strptime(now(),"%F %H:%M")
 b<-seq(from=as.POSIXct(datainizio),to=as.POSIXct(datafine), "10 min")
 df<-data.frame(date=b)
 # virgolette dritte
@@ -53,8 +54,8 @@ for (IDop in 1:4){
     v<-subset(mieidati,IDsensore==i & IDoperatore==IDop ,select=c(Data_e_ora,Misura,NomeTipologia))
     v$Data_e_ora<-as.POSIXct(v$Data_e_ora)
     N<-nrow(v)
-    if (N>0 & N!=145){
-      #se non ho 0 oppure non ne ho 145 allora mi mancano dei dati
+    if (N>0 & N!=7){
+      #se non ho 0 oppure non ne ho 7 allora mi mancano dei dati
 #      print(paste("Dati mancanti per IDsensore ", i))
      
       #mm$valore<-v$Misura[which(mm$date %in% v$Data_e_ora)]

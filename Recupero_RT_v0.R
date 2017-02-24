@@ -8,9 +8,21 @@ library("RMySQL")
 library("jsonlite")
 library("lubridate")
 
+rmsql.user<-Sys.getenv("USERID")
+rmsql.pwd<-Sys.getenv("USERPWD")
+long_or_short<-Sys.getenv("LONG_SHORT")
+if (long_or_short=="s"){
+    numero_intervalli<-7
+    datainizio<-strptime(now("Europe/Rome")-3600,"%F %H:%M")
+    datafine<-strptime(now("Europe/Rome"),"%F %H:%M")
+    print("Richiesto recupero corto")
+    } else {
+    numero_intervalli<-145
+    datainizio<-strptime(now("Europe/Rome")-86400,"%F %H:%M")
+    datafine<-strptime(now("Europe/Rome"),"%F %H:%M")
+    print("Richiesto recupero lungo")
+}
 options(warn=0)
-datainizio<-strptime(now("Europe/Rome")-3600,"%F %H:%M")
-datafine<-strptime(now("Europe/Rome"),"%F %H:%M")
 b<-seq(from=as.POSIXct(datainizio),to=as.POSIXct(datafine), "10 min")
 df<-data.frame(date=b)
 # virgolette dritte
@@ -20,14 +32,8 @@ dataf=dQuote(datafine)
 #mm contiene i valori delle date e tutti gli NA
 mm<-data.frame(date=b,valore="NA")
 data_inizio_recupero<-now()
-#rmysql.settingsfile<-"my.cnf"
-#miofile<-read.delim(rmysql.settingsfile,sep="\n")
-#rmsql.user<-miofile[1,]
-#rmsql.pwd<-miofile[2,]
-# reinserite credenziali in chiaro per problema di dockerfile
-rmsql.user<-"root"
-rmsql.pwd<-"radice"
-mydb = dbConnect(MySQL(), user=as.character(rmsql.user),password=as.character(rmsql.pwd), dbname='METEO', host='10.10.0.6')
+
+mydb = dbConnect(MySQL(), user=as.character(rmsql.user),password=as.character(rmsql.pwd), dbname=Sys.getenv("USERDB"), host=Sys.getenv("DBIP"))
 myquerydati<-paste("select * from M_Osservazioni_TR where Data_e_ora between ",datai," and ", dataf)
 rs = dbSendQuery(mydb, myquerydati)
 mieidati=fetch(rs,-1)
@@ -54,7 +60,7 @@ for (IDop in 1:4){
     v<-subset(mieidati,IDsensore==i & IDoperatore==IDop ,select=c(Data_e_ora,Misura,NomeTipologia))
     v$Data_e_ora<-as.POSIXct(v$Data_e_ora)
     N<-nrow(v)
-    if (N>0 & N!=7){
+    if (N>0 & N!=numero_intervalli){
       #se non ho 0 oppure non ne ho 7 allora mi mancano dei dati
 #      print(paste("Dati mancanti per IDsensore ", i))
      
@@ -108,14 +114,21 @@ for (IDop in 1:4){
        
       } #fine del ciclo sugli M elementi mancanti
 #      print(paste("...numero di dati inseriti:",conta_update))
-      msg1='logger -is -p user.info "RecuperoRT: Sensore "'
-      msg2= '" pacchetti" -t "RecuperoRT"'
-      msg<-paste(msg1,i,conta_update,msg2)
-      print(msg)
-      system(msg,intern=FALSE)
+      if (conta_update > 0) {
+          msg1='logger -is -p user.info "RecuperoRT: Sensore "'
+          msg2= '" pacchetti" -t "RecuperoRT"'
+          msg<-paste(msg1,i,conta_update,msg2)
+          print(msg)
+          system(msg,intern=FALSE)
+      }
       conta_update<-0
     }
     
   } #fine del ciclo sui sensori
 }   # fine del ciclo sugli IDoperatore
-print(paste("Recupero_RT: inizio il ",data_inizio_recupero," e fine il ", now()))
+msg<-paste("Recupero_RT: inizio il ",data_inizio_recupero," e fine il ", now())
+print(msg)
+msg2<-paste('logger -is -p user.notice ',dQuote(msg), '-t "RecuperoRT"')
+print(msg2)
+system(paste(msg2,intern=FALSE))
+

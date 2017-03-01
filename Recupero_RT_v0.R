@@ -11,6 +11,7 @@ library("lubridate")
 rmsql.user<-Sys.getenv("USERID")
 rmsql.pwd<-Sys.getenv("USERPWD")
 long_or_short<-Sys.getenv("LONG_SHORT")
+print(long_or_short)
 if (long_or_short=="s"){
     numero_intervalli<-7
     datainizio<-strptime(now("Europe/Rome")-3600,"%F %H:%M")
@@ -22,6 +23,7 @@ if (long_or_short=="s"){
     datafine<-strptime(now("Europe/Rome"),"%F %H:%M")
     print("Richiesto recupero lungo")
 }
+print(numero_intervalli)
 options(warn=0)
 b<-seq(from=as.POSIXct(datainizio),to=as.POSIXct(datafine), "10 min")
 df<-data.frame(date=b)
@@ -62,7 +64,7 @@ for (IDop in 1:4){
     N<-nrow(v)
     if (N>0 & N!=numero_intervalli){
       #se non ho 0 oppure non ne ho 7 allora mi mancano dei dati
-#      print(paste("Dati mancanti per IDsensore ", i))
+      print(paste("Dati mancanti per IDsensore ", i))
      
       #mm$valore<-v$Misura[which(mm$date %in% v$Data_e_ora)]
       mm$valore[which(mm$date %in% v$Data_e_ora)]<-v$Misura
@@ -87,9 +89,7 @@ for (IDop in 1:4){
           #costruisco update
           inserisci<-paste("insert into M_Osservazioni_TR (IDsensore,NomeTipologia,IDoperatore,Data_e_ora,Misura,Data,IDutente,Autore) VALUES")
           df_ins<-risposta$data$sensor_data_list
-          #Misura<-strsplit(df_ins$data,";")[[2]]
           aa<-as.data.frame(strsplit(as.character(df_ins$data),";"))
-          #forzo il fatto che in Misura ci deve essere un valore numerico così evito il vettore logico a lunghezza 0
           Misura<-aa[2,1]
           data_change<-format(Sys.time(), "%Y-%m-%d %H:%M:%S")
           inserisci=paste(inserisci,"(", df_ins$sensor_id,",",dQuote(NomeTipologia),",",df_ins$operator_id,",",dQuote(data_di_inizio),",",Misura,",",dQuote(data_change),",",58,",",dQuote(whoami),")")
@@ -123,7 +123,12 @@ for (IDop in 1:4){
       }
       conta_update<-0
     }
-    
+# inserisco controllo per interruzione recupero se è passato troppo tempo
+  time_spent<-difftime(now(),data_inizio_recupero,units="mins")
+  print(paste("Tempo sul giro in minuti: ",time_spent))
+  if (time_spent > 30) {
+    stop("Troppo tempo impiegato nel recupero: esco")
+  }    
   } #fine del ciclo sui sensori
 }   # fine del ciclo sugli IDoperatore
 msg<-paste("Recupero_RT: inizio il ",data_inizio_recupero," e fine il ", now())

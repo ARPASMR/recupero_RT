@@ -16,11 +16,13 @@ if (long_or_short=="s"){
     numero_intervalli<-7
     datainizio<-strptime(now("Europe/Rome")-3600,"%F %H:%M")
     datafine<-strptime(now("Europe/Rome"),"%F %H:%M")
+    timeout<-19
     print("Richiesto recupero corto")
     } else {
     numero_intervalli<-145
     datainizio<-strptime(now("Europe/Rome")-86400,"%F %H:%M")
     datafine<-strptime(now("Europe/Rome"),"%F %H:%M")
+    timeout<-59
     print("Richiesto recupero lungo")
 }
 print(numero_intervalli)
@@ -39,7 +41,7 @@ mydb = dbConnect(MySQL(), user=as.character(rmsql.user),password=as.character(rm
 myquerydati<-paste("select * from M_Osservazioni_TR where Data_e_ora between ",datai," and ", dataf)
 rs = dbSendQuery(mydb, myquerydati)
 mieidati=fetch(rs,-1)
-vista=dbSendQuery(mydb,"select * from vw_rt10 where AggregazioneTemporale=10")
+vista=dbSendQuery(mydb,"select * from vw_rt10 where AggregazioneTemporale=10 order by IDsensore DESC")
 miavista=fetch(vista,-1)
 # disconnessione da dB 
 #dbDisconnect(mydb)
@@ -62,10 +64,14 @@ for (IDop in 1:4){
     v<-subset(mieidati,IDsensore==i & IDoperatore==IDop ,select=c(Data_e_ora,Misura,NomeTipologia))
     v$Data_e_ora<-as.POSIXct(v$Data_e_ora)
     N<-nrow(v)
+    if (N==0){
+    #i dati mancano completamente: segnalo come errore
+    esito<-system(paste('logger -is -p user.err "RecuperoRT: dati mancanti per il sensore "',i,'-t "RecuperoRT"'),intern=FALSE) 
+}
+
     if (N>0 & N!=numero_intervalli){
       #se non ho 0 oppure non ne ho 7 allora mi mancano dei dati
       print(paste("Dati mancanti per IDsensore ", i))
-     
       #mm$valore<-v$Misura[which(mm$date %in% v$Data_e_ora)]
       mm$valore[which(mm$date %in% v$Data_e_ora)]<-v$Misura
       #adesso mm contiene i valori NA solo per i dati mancanti
@@ -119,14 +125,14 @@ for (IDop in 1:4){
           msg2= '" pacchetti" -t "RecuperoRT"'
           msg<-paste(msg1,i,conta_update,msg2)
           print(msg)
-          system(msg,intern=FALSE)
+          esito<-system(msg,intern=FALSE)
       }
       conta_update<-0
     }
 # inserisco controllo per interruzione recupero se è passato troppo tempo
   time_spent<-difftime(now(),data_inizio_recupero,units="mins")
   print(paste("Tempo sul giro in minuti: ",time_spent))
-  if (time_spent > 30) {
+  if (time_spent > timeout) {
     stop("Troppo tempo impiegato nel recupero: esco")
   }    
   } #fine del ciclo sui sensori
@@ -135,5 +141,6 @@ msg<-paste("Recupero_RT: inizio il ",data_inizio_recupero," e fine il ", now())
 print(msg)
 msg2<-paste('logger -is -p user.notice ',dQuote(msg), '-t "RecuperoRT"')
 print(msg2)
-system(paste(msg2,intern=FALSE))
+esito<-system(msg2,intern=FALSE)
+esito<-system(paste('logger -is -p user.notice "RecuperoRT: durata complessiva', time_spent, '" -t "RecuperoRT"'),intern=FALSE)
 

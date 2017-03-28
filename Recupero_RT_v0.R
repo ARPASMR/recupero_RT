@@ -14,8 +14,8 @@ long_or_short<-Sys.getenv("LONG_SHORT")
 print(long_or_short)
 if (long_or_short=="s"){
     numero_intervalli<-7
-    datainizio<-strptime(now("Europe/Rome")-3600,"%F %H:%M")
-    datafine<-strptime(now("Europe/Rome"),"%F %H:%M")
+    datainizio<-strptime(now("UTC"),"%F %H:%M")
+    datafine<-strptime(now("UTC")+3600,"%F %H:%M")
     timeout<-19
     print("Richiesto recupero corto")
     } else {
@@ -34,6 +34,7 @@ options(useFancyQuotes = FALSE)
 datai=dQuote(datainizio)
 dataf=dQuote(datafine)
 #mm contiene i valori delle date e tutti gli NA
+print(paste("data di inizio",datainizio,"data di fine",datafine))
 mm<-data.frame(date=b,valore="NA")
 data_inizio_recupero<-now()
 
@@ -64,10 +65,11 @@ for (IDop in 1:4){
     v<-subset(mieidati,IDsensore==i & IDoperatore==IDop ,select=c(Data_e_ora,Misura,NomeTipologia))
     v$Data_e_ora<-as.POSIXct(v$Data_e_ora)
     N<-nrow(v)
+    print(paste("Sensore ID",i," dati previsti",numero_intervalli,"dati effettivi",N))
     if (N==0){
     #i dati mancano completamente: segnalo come errore
-    esito<-system(paste('logger -is -p user.err "RecuperoRT: dati mancanti per il sensore "',i,'-t "RecuperoRT"'),intern=FALSE) 
-}
+     esito<-system(paste('logger -is -p user.err "RecuperoRT: mancano tutti i dati per la coppia Operatore-Sensore "',IDop,i,'-t "RecuperoRT"'),intern=FALSE) 
+    }
 
     if (N>0 & N!=numero_intervalli){
       #se non ho 0 oppure non ne ho 7 allora mi mancano dei dati
@@ -121,9 +123,9 @@ for (IDop in 1:4){
       } #fine del ciclo sugli M elementi mancanti
 #      print(paste("...numero di dati inseriti:",conta_update))
       if (conta_update > 0) {
-          msg1='logger -is -p user.info "RecuperoRT: Sensore "'
+          msg1='logger -is -p user.info "RecuperoRT: Operatore Sensore "'
           msg2= '" pacchetti" -t "RecuperoRT"'
-          msg<-paste(msg1,i,conta_update,msg2)
+          msg<-paste(msg1,IDop,i,conta_update,msg2)
           print(msg)
           esito<-system(msg,intern=FALSE)
       }

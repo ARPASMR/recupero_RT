@@ -36,4 +36,4 @@ else
    set LONG_SHORT="L"
    echo "richiesto recupero di tipo non corto $LONG_SHORT"
 fi
-docker run -i -e "USERDB=$USERDB" -e "USERID=$USERID" -e "USERPWD=$USERPWD" -e "DBIP=$DBIP"  -e "LONG_SHORT=$LONG_SHORT" -v /dev/log:/dev/log mauromussin/myscriptr:recupero_RT
+docker run -i -e "USERDB=$USERDB" -e "USERID=$USERID" -e "USERPWD=$USERPWD" -e "DBIP=$DBIP"  -e "LONG_SHORT=$LONG_SHORT" -v /dev/log:/dev/log mauromussin/myscriptr:recupero_RT-pgsql

@@ -84,7 +84,9 @@ for (IDop in 1:4){
       y<-is.na(mm$valore)
       #grazie a y posso estrarre i valori nulli da chiedere
       hh<-mm$date[!y]
-      NomeTipologia<-v$nometipologia[1]
+   #   NomeTipologia<-v$nometipologia[1]
+      w<-subset(miavista,idsensore==i)
+      NomeTipologia<-w$nometipologia
       M<-NROW(hh)
       print(paste("inizio ciclo su M=",M))
       for(jj in 1:M){

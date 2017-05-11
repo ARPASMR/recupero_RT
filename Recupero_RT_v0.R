@@ -92,7 +92,7 @@ for (IDop in 1:4){
       for(jj in 1:M){
         data_di_inizio<-hh[jj]
         data_di_fine.lt<-as.POSIXlt(data_di_inizio)
-        data_di_fine.lt$min=data_di_fine.lt$min+1
+        data_di_fine.lt$min=data_di_fine.lt$min+9
         richiesta_vector<-paste(dQuote("sensor_id"),": ",i,",",dQuote("function_id"),": ","1",",",dQuote("operator_id"),": ",IDop,",",dQuote("granularity"),": ","1",",",dQuote("start"),": ",dQuote(data_di_inizio),",",dQuote("finish"),": ",dQuote(data_di_fine.lt),"}]}}")
         richiesta<-paste(richiesta_header,richiesta_data,richiesta_vector)
         #  print(richiesta)

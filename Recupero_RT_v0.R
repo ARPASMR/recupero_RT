@@ -117,7 +117,6 @@ for (IDop in 1:4){
           }
           if (condizione){
             conta_update<-conta_update+1
-            line<-readline("Mando l'Update, ok?")
             tmp <- try(dbExecute(mydb, inserisci), silent=TRUE)
            
                if ('try-error' %in% class(tmp)) {

@@ -17,7 +17,7 @@ do
 #2.bis verifico che il servizio di collect sia online
 
 #3. lancio lo script
-if [ $SECONDS -ge 10 ]
+if [ $SECONDS -ge 1200 ]
 then
  Rscript Recupero_RT_v0.R
  SECONDS=0

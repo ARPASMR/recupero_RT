@@ -7,12 +7,10 @@ source ~/.bash_profile;
 #  l/L = long, ovvero recupero 24h
 #controllo se il container è già stato lanciato: se sì, ritardo l'esecuzione 
 # lo inserisco in un ciclo di attesa di 20 minuti, trascorsi i quali non eseguo il comando
-if [$1 == "s" ]
-  then
-  LONG_SHORT="s"
+if [ $LONG_SHORT == "s" ]
+then
   numsec=1200
 else
-  LONG_SHORT="L"
   numsec=86400
 fi
 SECONDS=numsec+1

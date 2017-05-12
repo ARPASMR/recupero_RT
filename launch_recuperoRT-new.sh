@@ -7,7 +7,15 @@ source ~/.bash_profile;
 #  l/L = long, ovvero recupero 24h
 #controllo se il container è già stato lanciato: se sì, ritardo l'esecuzione 
 # lo inserisco in un ciclo di attesa di 20 minuti, trascorsi i quali non eseguo il comando
-SECONDS=1201
+if [$1 == "s" ]
+  then
+  LONG_SHORT="s"
+  numsec=1200
+else
+  LONG_SHORT="L"
+  numsec=86400
+fi
+SECONDS=numsec+1
 LOCKFILE='usr/local/src/myscripts/.lock'
 
 while [ 1 ]
@@ -17,7 +25,7 @@ do
 #2.bis verifico che il servizio di collect sia online
 
 #3. lancio lo script
-if [ $SECONDS -ge 1200 ]
+if [ $SECONDS -ge numsec ]
 then
  Rscript Recupero_RT_v0.R
  SECONDS=0

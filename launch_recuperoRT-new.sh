@@ -13,7 +13,7 @@ then
 else
   numsec=86400
 fi
-SECONDS=$numsec+1
+SECONDS=$numsec
 LOCKFILE='usr/local/src/myscripts/.lock'
 
 while [ 1 ]

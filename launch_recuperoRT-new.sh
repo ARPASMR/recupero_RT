@@ -19,8 +19,7 @@ do
 #3. lancio lo script
 if [ $SECONDS -ge 10 ]
 then
-#Rscript Recupero_RT_v0.R
- echo "lancio $SECONDS"
+ Rscript Recupero_RT_v0.R
  SECONDS=0
 fi
 done

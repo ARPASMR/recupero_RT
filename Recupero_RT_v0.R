@@ -106,8 +106,9 @@ for (IDop in 1:4){
           df_ins<-risposta$data$sensor_data_list
           aa<-as.data.frame(strsplit(as.character(df_ins$data),";"))
           Misura<-aa[2,1]
+          Data_di_misura<-substr(aa[1,1],17,36)
           data_change<-format(Sys.time(), "%Y-%m-%d %H:%M:%S")
-          inserisci=paste(inserisci,"(", df_ins$sensor_id,",",sQuote(NomeTipologia),",",df_ins$operator_id,",",sQuote(data_di_inizio),",",Misura,",",sQuote(data_change),",",58,",",sQuote(whoami),")")
+          inserisci=paste(inserisci,"(", df_ins$sensor_id,",",sQuote(NomeTipologia),",",df_ins$operator_id,",",sQuote(Data_di_misura),",",Misura,",",sQuote(data_change),",",58,",",sQuote(whoami),")")
            # print(inserisci)
           # send the query
           # condizione è una variabile logica che però può tornare valore a lunghezza zero 

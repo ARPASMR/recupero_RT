@@ -129,7 +129,7 @@ for (IDop in 1:4){
       } #fine del ciclo sugli M elementi mancanti
       print(paste("...numero di dati inseriti:",conta_update))
       if (conta_update > 0) {
-          msg1='logger -is -p user.info "RecuperoRT: Operatore Sensore "'
+          msg1='logger -is -p user.info "RecuperoRT-pgsql: Operatore Sensore "'
           msg2= '" pacchetti" -t "RecuperoRT"'
           msg<-paste(msg1,IDop,i,conta_update,msg2)
           print(msg)
@@ -144,10 +144,10 @@ for (IDop in 1:4){
   }    
   } #fine del ciclo sui sensori
 }   # fine del ciclo sugli IDoperatore
-msg<-paste("Recupero_RT: inizio il ",data_inizio_recupero," e fine il ", now())
+msg<-paste("Recupero_RT-pgsql: inizio il ",data_inizio_recupero," e fine il ", now())
 print(msg)
 msg2<-paste('logger -is -p user.notice ',dQuote(msg), '-t "RecuperoRT"')
 print(msg2)
 esito<-system(msg2,intern=FALSE)
-esito<-system(paste('logger -is -p user.notice "RecuperoRT: durata complessiva', time_spent, '" -t "RecuperoRT"'),intern=FALSE)
+esito<-system(paste('logger -is -p user.notice "RecuperoRT-pgsql: durata complessiva', time_spent, '" -t "RecuperoRT"'),intern=FALSE)
 

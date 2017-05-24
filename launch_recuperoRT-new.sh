@@ -25,7 +25,7 @@ do
 #3. lancio lo script
 if [ $SECONDS -ge $numsec ]
 then
- Rscript Recupero_RT_v0.R
+ Rscript Recupero_RT_v1.R
  SECONDS=0
 fi
 done

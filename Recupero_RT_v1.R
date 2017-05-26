@@ -58,18 +58,18 @@ richiesta_data<-paste(dQuote("data"),":{",dQuote("sensors_list"),": [{")
 
 # identifico elementi mancanti
 conta_update<-0
-jj=0
+kk=0
 # inizio del ciclo su idsensore
 for (i in miavista$idsensore){
-  jj=+1
+  kk=+1
   # se la tipologia è T IDoperatore è 123
   # se la tipoliogia è DV,VV è 13
   # se la tipologia è PP,N è 4
   # se la tipologia è RG,PA,I,UR è 1
-  if (miavista$nometipologia[jj]=='T'){lista<-c(1,2,3)}
-  if (miavista$nometipologia[jj]=='DV'|miavista$nometipologia[jj]=='VV'){lista<-c(1,3)}
-  if (miavista$nometipologia[jj]=='PP'|miavista$nometipologia[jj]=='N'){lista<-c(4)}
-  if (miavista$nometipologia[jj]=='I'|miavista$nometipologia[jj]=='PA'|miavista$nometipologia[jj]=='RG'|miavista$nometipologia[jj]=='UR'){lista<-c(1)}
+  if (miavista$nometipologia[kk]=='T'){lista<-c(1,2,3)}
+  if (miavista$nometipologia[kk]=='DV'|miavista$nometipologia[kk]=='VV'){lista<-c(1,3)}
+  if (miavista$nometipologia[kk]=='PP'|miavista$nometipologia[kk]=='N'){lista<-c(4)}
+  if (miavista$nometipologia[kk]=='I'|miavista$nometipologia[kk]=='PA'|miavista$nometipologia[kk]=='RG'|miavista$nometipologia[kk]=='UR'){lista<-c(1)}
   myquerydati<-paste("select * from realtime.m_osservazioni_tr where data_e_ora between ",datai," and ", dataf, "and idsensore=", i)
   rs = dbSendQuery(mydb, myquerydati)
   mieidati=fetch(rs,-1)

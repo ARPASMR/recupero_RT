@@ -13,16 +13,22 @@ rmsql.user<-Sys.getenv("USERID")
 rmsql.pwd<-Sys.getenv("USERPWD")
 long_or_short<-Sys.getenv("LONG_SHORT")
 print(long_or_short)
+# posiziono l'inizio ai 10 minuti precedenti
+adesso<-strptime(now("UTC"),"%F %H:%M")
+i10<-as.integer(minute(adesso)/10)*10
+differenza<-minute(adesso)-i10
+orora<-strptime(adesso-differenza*60,"%F %H:%M")
+
 if (long_or_short=="s"){
     numero_intervalli<-7
-    datainizio<-strptime(now("UTC"),"%F %H:%M")
-    datafine<-strptime(now("UTC")+3600,"%F %H:%M")
+    datainizio<-strptime(orora,"%F %H:%M")
+    datafine<-strptime(orora+3600,"%F %H:%M")
     timeout<-19
     print("Richiesto recupero corto")
     } else {
     numero_intervalli<-145
-    datainizio<-strptime(now("UTC")-86400,"%F %H:%M")
-    datafine<-strptime(now("UTC"),"%F %H:%M")
+    datainizio<-strptime(orora-86400,"%F %H:%M")
+    datafine<-strptime(orora,"%F %H:%M")
     timeout<-59
     print("Richiesto recupero lungo")
 }

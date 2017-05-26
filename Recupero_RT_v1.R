@@ -58,36 +58,27 @@ richiesta_data<-paste(dQuote("data"),":{",dQuote("sensors_list"),": [{")
 
 # identifico elementi mancanti
 conta_update<-0
-# inizio del ciclo su IDoperatore
-for (IDop in 1:4){
-  print (paste("OPERATORE ",IDop))
-# impostazione della query in funzione dell'IDoperatore
-  if (IDop==1){
-   myquerydati<-paste("select * from realtime.m_osservazioni_tr where data_e_ora between ",datai," and ", dataf, "and nometipologia in ('I','T','VV','DV','UR','RG','PA')")
-   rs = dbSendQuery(mydb, myquerydati)
-   mieidati=fetch(rs,-1)
-  }
-  if (IDop==2){
-    myquerydati<-paste("select * from realtime.m_osservazioni_tr where data_e_ora between ",datai," and ", dataf, "and nometipologia='T'")
-    rs = dbSendQuery(mydb, myquerydati)
-    mieidati=fetch(rs,-1)
-  }
-  if (IDop==3){
-    myquerydati<-paste("select * from realtime.m_osservazioni_tr where data_e_ora between ",datai," and ", dataf, "and nometipologia in ('T','VV','DV')")
-    rs = dbSendQuery(mydb, myquerydati)
-    mieidati=fetch(rs,-1)
-  }
-  if (IDop==4){
-    myquerydati<-paste("select * from realtime.m_osservazioni_tr where data_e_ora between ",datai," and ", dataf, "and nometipologia in ('PP','N')")
-    rs = dbSendQuery(mydb, myquerydati)
-    mieidati=fetch(rs,-1)
-  }  
-# se non ho dati nelk periodo prendo una riga a caso per avere la struttura della tabella
+jj=0
+# inizio del ciclo su idsensore
+for (i in miavista$idsensore){
+  jj=+1
+  # se la tipologia è T IDoperatore è 123
+  # se la tipoliogia è DV,VV è 13
+  # se la tipologia è PP,N è 4
+  # se la tipologia è RG,PA,I,UR è 1
+  if (miavista$nometipologia[jj]=='T'){lista<-c(1,2,3)}
+  if (miavista$nometipologia[jj]=='DV'|miavista$nometipologia[jj]=='VV'){lista<-c(1,3)}
+  if (miavista$nometipologia[jj]=='PP'|miavista$nometipologia[jj]=='N'){lista<-c(4)}
+  if (miavista$nometipologia[jj]=='I'|miavista$nometipologia[jj]=='PA'|miavista$nometipologia[jj]=='RG'|miavista$nometipologia[jj]=='UR'){lista<-c(1)}
+  myquerydati<-paste("select * from realtime.m_osservazioni_tr where data_e_ora between ",datai," and ", dataf, "and idsensore=", i)
+  rs = dbSendQuery(mydb, myquerydati)
+  mieidati=fetch(rs,-1)
+  #se non trovo dati ne prendo uno a caso per avere la struttura della tabella
   if (length(mieidati)==0){
-      rs=dbSendQuery(mydb,"SELECT * from realtime.m_osservazioni_tr LIMIT 1")
-      mieidati=fetch(rs,-1)
+    rs=dbSendQuery(mydb,"SELECT * from realtime.m_osservazioni_tr LIMIT 1")
+    mieidati=fetch(rs,-1)
   }
-  for (i in miavista$idsensore)  {
+  for (IDop in lista) {
    # print(paste("Sensore ID ",i))
     mm<-data.frame(date=b,valore="NA")
     v<-subset(mieidati,idsensore==i & idoperatore==IDop ,select=c(data_e_ora,misura,nometipologia))
@@ -178,8 +169,8 @@ for (IDop in 1:4){
        esito<-system('logger -is -p user.warning "RecuperoRT-pgsql: timeout" -t "RecuperoRT"',intern=FALSE) 
        stop("Troppo tempo impiegato nel recupero: esco")
     }    
-  } #fine del ciclo sui sensori
-}   # fine del ciclo sugli IDoperatore
+  } #fine del ciclo sui IDop
+}   # fine del ciclo su idsensore
 msg<-paste("Recupero_RT-pgsql: inizio il ",data_inizio_recupero," e fine il ", now())
 print(msg)
 msg2<-paste('logger -is -p user.notice ',dQuote(msg), '-t "RecuperoRT"')

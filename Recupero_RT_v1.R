@@ -117,6 +117,9 @@ for (i in miavista$idsensore){
        if (Frequenza==60){
          IDperiodo<-3
        }
+       if (Frequenza<10){
+         IDfunzione<-3
+       }
         richiesta_vector<-paste(dQuote("sensor_id"),": ",i,",",dQuote("function_id"),": ",IDfunzione,",",dQuote("operator_id"),": ",IDop,",",dQuote("granularity"),": ",IDperiodo,",",dQuote("start"),": ",dQuote(data_di_inizio),",",dQuote("finish"),": ",dQuote(data_di_fine.lt),"}]}}")
         richiesta<-paste(richiesta_header,richiesta_data,richiesta_vector)
         #  print(richiesta)

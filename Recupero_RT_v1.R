@@ -58,18 +58,19 @@ richiesta_data<-paste(dQuote("data"),":{",dQuote("sensors_list"),": [{")
 
 # identifico elementi mancanti
 conta_update<-0
-kk=0
 # inizio del ciclo su idsensore
 for (i in miavista$idsensore){
-  kk=+1
+   w<-subset(miavista,idsensore==i)
+   NomeTipologia<-w$nometipologia
+   Frequenza<-w$frequenza
+  # se la tipologia è DV,VV è 13
   # se la tipologia è T IDoperatore è 123
-  # se la tipoliogia è DV,VV è 13
   # se la tipologia è PP,N è 4
   # se la tipologia è RG,PA,I,UR è 1
-  if (miavista$nometipologia[kk]=='T'){lista<-c(1,2,3)}
-  if (miavista$nometipologia[kk]=='DV'|miavista$nometipologia[kk]=='VV'){lista<-c(1,3)}
-  if (miavista$nometipologia[kk]=='PP'|miavista$nometipologia[kk]=='N'){lista<-c(4)}
-  if (miavista$nometipologia[kk]=='I'|miavista$nometipologia[kk]=='PA'|miavista$nometipologia[kk]=='RG'|miavista$nometipologia[kk]=='UR'){lista<-c(1)}
+  if (NomeTipologia=='T'){lista<-c(1,2,3)}
+  if (NomeTipologia=='DV'|NomeTipologia=='VV'){lista<-c(1,3)}
+  if (NomeTipologia=='PP'|NomeTipologia=='N'){lista<-c(4)}
+  if (NomeTipologia=='I'|NomeTipologia=='PA'|NomeTipologia=='RG'|NomeTipologia=='UR'){lista<-c(1)}
   myquerydati<-paste("select * from realtime.m_osservazioni_tr where data_e_ora between ",datai," and ", dataf, "and idsensore=", i)
   rs = dbSendQuery(mydb, myquerydati)
   mieidati=fetch(rs,-1)
@@ -77,6 +78,22 @@ for (i in miavista$idsensore){
   if (length(mieidati)==0){
     rs=dbSendQuery(mydb,"SELECT * from realtime.m_osservazioni_tr LIMIT 1")
     mieidati=fetch(rs,-1)
+  }
+  # selezione IDfunzione
+   IDfunzione<-1
+   if (NomeTipologia=='N') {
+           IDfunzione<-3
+   }
+  # selezione granularity
+  IDperiodo<-1
+  if (Frequenza==30){
+         IDperiodo<-2
+  }
+  if (Frequenza==60){
+         IDperiodo<-3
+  } 
+  if (Frequenza<10){
+         IDfunzione<-3
   }
   for (IDop in lista) {
    # print(paste("Sensore ID ",i))
@@ -94,38 +111,19 @@ for (i in miavista$idsensore){
       y<-is.na(mm$valore)
       #grazie a y posso estrarre i valori nulli da chiedere
       hh<-mm$date[!y]
-   #   NomeTipologia<-v$nometipologia[1]
-      w<-subset(miavista,idsensore==i)
-      NomeTipologia<-w$nometipologia
-      Frequenza<-w$frequenza
+   #  NomeTipologia<-v$nometipologia[1]
       M<-NROW(hh)
-      print(paste("inizio ciclo su M=",M))
+#     print(paste("inizio ciclo su M=",M))
       for(jj in 1:M){
         data_di_inizio<-hh[jj]
         data_di_fine.lt<-as.POSIXlt(data_di_inizio)
         data_di_fine.lt$min=data_di_fine.lt$min+9
-       # selezione IDfunzione
-       IDfunzione<-1
-       if (NomeTipologia=='N') {
-           IDfunzione<-3
-       }
-# selezione granularity
-       IDperiodo<-1
-       if (Frequenza==30){
-         IDperiodo<-2
-       }
-       if (Frequenza==60){
-         IDperiodo<-3
-       }
-       if (Frequenza<10){
-         IDfunzione<-3
-       }
-        richiesta_vector<-paste(dQuote("sensor_id"),": ",i,",",dQuote("function_id"),": ",IDfunzione,",",dQuote("operator_id"),": ",IDop,",",dQuote("granularity"),": ",IDperiodo,",",dQuote("start"),": ",dQuote(data_di_inizio),",",dQuote("finish"),": ",dQuote(data_di_fine.lt),"}]}}")
+       richiesta_vector<-paste(dQuote("sensor_id"),": ",i,",",dQuote("function_id"),": ",IDfunzione,",",dQuote("operator_id"),": ",IDop,",",dQuote("granularity"),": ",IDperiodo,",",dQuote("start"),": ",dQuote(data_di_inizio),",",dQuote("finish"),": ",dQuote(data_di_fine.lt),"}]}}")
         richiesta<-paste(richiesta_header,richiesta_data,richiesta_vector)
         #  print(richiesta)
         r<-POST(url="http://10.10.0.15:9090",body=noquote(richiesta))
         risposta<-fromJSON(content(r,as="text",encoding = "UTF-8")) 
-       # print (paste("UPDATE...",jj," pacchetto su ", M))
+        # print (paste("UPDATE...",jj," pacchetto su ", M))
         #  print(risposta)
         if (risposta$data$outcome==0 ){
           #costruisco update

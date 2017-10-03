@@ -101,10 +101,10 @@ for (i in miavista$idsensore){
     v<-subset(mieidati,idsensore==i & idoperatore==IDop ,select=c(data_e_ora,misura,nometipologia))
     v$data_e_ora<-as.POSIXct(v$data_e_ora)
     N<-nrow(v)
-    print(paste("Sensore ID",i," dati previsti",numero_intervalli,"dati effettivi",N))
+#    print(paste("Sensore ID",i," dati previsti",numero_intervalli,"dati effettivi",N))
     if (N!=numero_intervalli){
       #se non ho 0 oppure non ne ho 7 allora mi mancano dei dati
-      print(paste("Dati mancanti per IDsensore ", i))
+#      print(paste("Dati mancanti per IDsensore ", i))
       #mm$valore<-v$misura[which(mm$date %in% v$data_e_ora)]
       mm$valore[which(mm$date %in% v$data_e_ora)]<-v$misura
       #adesso mm contiene i valori NA solo per i dati mancanti
@@ -153,12 +153,12 @@ for (i in miavista$idsensore){
         }
        
       } #fine del ciclo sugli M elementi mancanti
-      print(paste("...numero di dati inseriti:",conta_update))
+#      print(paste("...numero di dati inseriti:",conta_update))
       if (conta_update > 0) {
           msg1='logger -is -p user.info "RecuperoRT-pgsql: Operatore Sensore "'
           msg2= '" pacchetti" -t "RecuperoRT"'
           msg<-paste(msg1,IDop,i,conta_update,msg2)
-          print(msg)
+#          print(msg)
           esito<-system(msg,intern=FALSE)
       }
     } #fine ciclo su N!=numero_elementi
@@ -167,7 +167,7 @@ for (i in miavista$idsensore){
     time_spent<-difftime(now(),data_inizio_recupero,units="mins")
     print(paste("Tempo sul giro in minuti: ",time_spent))
     if (time_spent > timeout) {
-       esito<-system('logger -is -p user.warning "RecuperoRT-pgsql: timeout" -t "RecuperoRT"',intern=FALSE) 
+#       esito<-system('logger -is -p user.warning "RecuperoRT-pgsql: timeout" -t "RecuperoRT"',intern=FALSE) 
        stop("Troppo tempo impiegato nel recupero: esco")
     }    
   } #fine del ciclo sui IDop
@@ -175,7 +175,7 @@ for (i in miavista$idsensore){
 msg<-paste("Recupero_RT-pgsql: inizio il ",data_inizio_recupero," e fine il ", now())
 print(msg)
 msg2<-paste('logger -is -p user.notice ',dQuote(msg), '-t "RecuperoRT"')
-print(msg2)
-esito<-system(msg2,intern=FALSE)
-esito<-system(paste('logger -is -p user.notice "RecuperoRT-pgsql: durata complessiva', time_spent, '" -t "RecuperoRT"'),intern=FALSE)
+#print(msg2)
+#esito<-system(msg2,intern=FALSE)
+#esito<-system(paste('logger -is -p user.notice "RecuperoRT-pgsql: durata complessiva', time_spent, '" -t "RecuperoRT"'),intern=FALSE)
 

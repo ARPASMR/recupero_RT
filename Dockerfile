@@ -1,5 +1,4 @@
-FROM mauromussin/myscriptr:recupero_RT-pgsql
+FROM registry.arpa.local/base/r-base_arpa
 COPY . /usr/local/src/myscripts
 WORKDIR /usr/local/src/myscripts
-RUN /usr/sbin/service rsyslog start
 CMD ["./launch_recuperoRT-new.sh"]

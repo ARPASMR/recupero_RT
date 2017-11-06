@@ -119,8 +119,9 @@ for (i in miavista$idsensore){
         data_di_fine.lt<-as.POSIXlt(data_di_inizio)
         data_di_fine.lt$min=data_di_fine.lt$min+9
        richiesta_vector<-paste(dQuote("sensor_id"),": ",i,",",dQuote("function_id"),": ",IDfunzione,",",dQuote("operator_id"),": ",IDop,",",dQuote("granularity"),": ",IDperiodo,",",dQuote("start"),": ",dQuote(data_di_inizio),",",dQuote("finish"),": ",dQuote(data_di_fine.lt),"}]}}")
+        richiesta_header<-paste("{",dQuote("header"),": {",dQuote("id"),": 10},")
+        richiesta_data<-paste(dQuote("data"),":{",dQuote("sensors_list"),": [{")
         richiesta<-paste(richiesta_header,richiesta_data,richiesta_vector)
-        #  print(richiesta)
         r<-POST(url="http://10.10.0.15:9090",body=noquote(richiesta))
         risposta<-fromJSON(content(r,as="text",encoding = "UTF-8")) 
         # print (paste("UPDATE...",jj," pacchetto su ", M))
@@ -155,17 +156,17 @@ for (i in miavista$idsensore){
       } #fine del ciclo sugli M elementi mancanti
 #      print(paste("...numero di dati inseriti:",conta_update))
       if (conta_update > 0) {
-          msg1='logger -is -p user.info "RecuperoRT-pgsql: Operatore Sensore "'
-          msg2= '" pacchetti" -t "RecuperoRT"'
-          msg<-paste(msg1,IDop,i,conta_update,msg2)
+#          msg1='logger -is -p user.info "RecuperoRT-pgsql: Operatore Sensore "'
+#          msg2= '" pacchetti" -t "RecuperoRT"'
+#          msg<-paste(msg1,IDop,i,conta_update,msg2)
 #          print(msg)
-          esito<-system(msg,intern=FALSE)
+#          esito<-system(msg,intern=FALSE)
       }
     } #fine ciclo su N!=numero_elementi
     conta_update<-0
 # inserisco controllo per interruzione recupero se è passato troppo tempo
     time_spent<-difftime(now(),data_inizio_recupero,units="mins")
-    print(paste("Tempo sul giro in minuti: ",time_spent))
+#    print(paste("Tempo sul giro in minuti: ",time_spent))
     if (time_spent > timeout) {
 #       esito<-system('logger -is -p user.warning "RecuperoRT-pgsql: timeout" -t "RecuperoRT"',intern=FALSE) 
        stop("Troppo tempo impiegato nel recupero: esco")

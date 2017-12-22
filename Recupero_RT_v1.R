@@ -65,12 +65,12 @@ for (i in miavista$idsensore){
    Frequenza<-w$frequenza
   # se la tipologia è DV,VV è 13
   # se la tipologia è T IDoperatore è 123
-  # se la tipologia è PP,N è 4
+  # se la tipologia è PP è 4
   # se la tipologia è RG,PA,I,UR è 1
   if (NomeTipologia=='T'){lista<-c(1,2,3)}
   if (NomeTipologia=='DV'|NomeTipologia=='VV'){lista<-c(1,3)}
-  if (NomeTipologia=='PP'|NomeTipologia=='N'){lista<-c(4)}
-  if (NomeTipologia=='I'|NomeTipologia=='PA'|NomeTipologia=='RG'|NomeTipologia=='UR'){lista<-c(1)}
+  if (NomeTipologia=='PP'){lista<-c(4)}
+  if (NomeTipologia=='I'|NomeTipologia=='PA'|NomeTipologia=='RG'|NomeTipologia=='UR'|NomeTipologia=='N'){lista<-c(1)}
   myquerydati<-paste("select * from realtime.m_osservazioni_tr where data_e_ora between ",datai," and ", dataf, "and idsensore=", i)
   rs = dbSendQuery(mydb, myquerydati)
   mieidati=fetch(rs,-1)
@@ -81,9 +81,6 @@ for (i in miavista$idsensore){
   }
   # selezione IDfunzione
    IDfunzione<-1
-   if (NomeTipologia=='N') {
-           IDfunzione<-3
-   }
   # selezione granularity
   IDperiodo<-1
   if (Frequenza==30){

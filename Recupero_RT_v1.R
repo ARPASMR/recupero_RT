@@ -12,7 +12,7 @@ library("RPostgreSQL")
 rmsql.user<-Sys.getenv("USERID")
 rmsql.pwd<-Sys.getenv("USERPWD")
 long_or_short<-Sys.getenv("LONG_SHORT")
-write(long_or_short,sdtout())
+write(long_or_short,stdout())
 # posiziono l'inizio ai 10 minuti precedenti
 adesso<-strptime(now("UTC"),"%F %H:%M")
 i10<-as.integer(minute(adesso)/10)*10
@@ -41,7 +41,7 @@ options(useFancyQuotes = FALSE)
 datai=sQuote(datainizio)
 dataf=sQuote(datafine)
 #mm contiene i valori delle date e tutti gli NA
-write(paste("data di inizio",datainizio,"data di fine",datafine),sdtout())
+write(paste("data di inizio",datainizio,"data di fine",datafine),stdout())
 mm<-data.frame(date=b,valore="NA")
 data_inizio_recupero<-now()
 drv<-dbDriver("PostgreSQL")
@@ -171,7 +171,7 @@ for (i in miavista$idsensore){
   } #fine del ciclo sui IDop
 }   # fine del ciclo su idsensore
 msg<-paste("Recupero_RT-pgsql: inizio il ",data_inizio_recupero," e fine il ", now())
-write(msg,sdtout())
+write(msg,stdout())
 msg2<-paste('logger -is -p user.notice ',dQuote(msg), '-t "RecuperoRT"')
 #print(msg2)
 #esito<-system(msg2,intern=FALSE)

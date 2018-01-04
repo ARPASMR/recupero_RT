@@ -119,7 +119,7 @@ for (i in miavista$idsensore){
         richiesta_header<-paste("{",dQuote("header"),": {",dQuote("id"),": 10},")
         richiesta_data<-paste(dQuote("data"),":{",dQuote("sensors_list"),": [{")
         richiesta<-paste(richiesta_header,richiesta_data,richiesta_vector)
-        r<-POST(url="http://10.10.0.15:9090",body=noquote(richiesta))
+        r<-POST(url="http://10.10.0.15:9099",body=noquote(richiesta))
         risposta<-fromJSON(content(r,as="text",encoding = "UTF-8")) 
         # print (paste("UPDATE...",jj," pacchetto su ", M))
         #  print(risposta)

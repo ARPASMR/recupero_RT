@@ -9,9 +9,11 @@ library("jsonlite")
 library("lubridate")
 library("RPostgreSQL")
 
+debug=FALSE
 rmsql.user<-Sys.getenv("USERID")
 rmsql.pwd<-Sys.getenv("USERPWD")
 long_or_short<-Sys.getenv("LONG_SHORT")
+debug<-Sys.getenv("DEBUG")
 write(long_or_short,stdout())
 # posiziono l'inizio ai 10 minuti precedenti
 adesso<-strptime(now("UTC"),"%F %H:%M")
@@ -24,15 +26,17 @@ if (long_or_short=="s"){
     datainizio<-strptime(orora,"%F %H:%M")
     datafine<-strptime(orora+3600,"%F %H:%M")
     timeout<-19
-    print("Richiesto recupero corto")
+    write("RecuperoRT: Richiesto recupero corto",stdout())
     } else {
     numero_intervalli<-145
     datainizio<-strptime(orora-86400,"%F %H:%M")
     datafine<-strptime(orora,"%F %H:%M")
     timeout<-59
-    print("Richiesto recupero lungo")
+    write("RecuperoRT: Richiesto recupero lungo",stdout())
 }
-print(numero_intervalli)
+if(debug){
+          write(paste("RecuperoRT:",numero_intervalli),stdout())
+}
 options(warn=0)
 b<-seq(from=as.POSIXct(datainizio),to=as.POSIXct(datafine), "10 min")
 df<-data.frame(date=b)
@@ -41,7 +45,7 @@ options(useFancyQuotes = FALSE)
 datai=sQuote(datainizio)
 dataf=sQuote(datafine)
 #mm contiene i valori delle date e tutti gli NA
-write(paste("data di inizio",datainizio,"data di fine",datafine),stdout())
+write(paste("RecuperoRT: data di inizio",datainizio,"data di fine",datafine),stdout())
 mm<-data.frame(date=b,valore="NA")
 data_inizio_recupero<-now()
 drv<-dbDriver("PostgreSQL")
@@ -119,10 +123,15 @@ for (i in miavista$idsensore){
         richiesta_header<-paste("{",dQuote("header"),": {",dQuote("id"),": 10},")
         richiesta_data<-paste(dQuote("data"),":{",dQuote("sensors_list"),": [{")
         richiesta<-paste(richiesta_header,richiesta_data,richiesta_vector)
+        if (debug){
+         write(paste("RecuperoRT:",richiesta), stdout())
+        }
         r<-POST(url="http://10.10.0.15:9099",body=noquote(richiesta))
         risposta<-fromJSON(content(r,as="text",encoding = "UTF-8")) 
         # print (paste("UPDATE...",jj," pacchetto su ", M))
-        #  print(risposta)
+        if(debug){
+         write(paste("RecuperoRT:",risposta), stdout())
+        }
         if (risposta$data$outcome==0 ){
           #costruisco update
           inserisci<-paste("insert into realtime.m_osservazioni_tr (idsensore,nometipologia,idoperatore,data_e_ora,misura,data,idutente,autore) VALUES")
@@ -144,7 +153,7 @@ for (i in miavista$idsensore){
             tmp <- try(dbExecute(mydb, inserisci), silent=TRUE)
            
                if ('try-error' %in% class(tmp)) {
-                    print(tmp)
+                    write(paste("RecuperoRT:",tmp),stderr())
             
                }
           } 
@@ -166,11 +175,11 @@ for (i in miavista$idsensore){
 #    print(paste("Tempo sul giro in minuti: ",time_spent))
     if (time_spent > timeout) {
 #       esito<-system('logger -is -p user.warning "RecuperoRT-pgsql: timeout" -t "RecuperoRT"',intern=FALSE) 
-       stop("Troppo tempo impiegato nel recupero: esco")
+       stop("Troppo tempo impiegato nel recupero: esco",stderr())
     }    
   } #fine del ciclo sui IDop
 }   # fine del ciclo su idsensore
-msg<-paste("Recupero_RT-pgsql: inizio il ",data_inizio_recupero," e fine il ", now())
+msg<-paste("RecuperoRT-pgsql: inizio il ",data_inizio_recupero," e fine il ", now())
 write(msg,stdout())
 msg2<-paste('logger -is -p user.notice ',dQuote(msg), '-t "RecuperoRT"')
 #print(msg2)

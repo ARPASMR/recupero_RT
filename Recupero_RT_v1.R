@@ -141,7 +141,9 @@ for (i in miavista$idsensore){
           Data_di_misura<-substr(aa[1,1],17,36)
           data_change<-format(Sys.time(), "%Y-%m-%d %H:%M:%S")
           inserisci=paste(inserisci,"(", df_ins$sensor_id,",",sQuote(NomeTipologia),",",df_ins$operator_id,",",sQuote(Data_di_misura),",",Misura,",",sQuote(data_change),",",58,",",sQuote(whoami),")")
-           # print(inserisci)
+          if (debug){
+                   write(paste("RecuperoRT:",inserisci),stdout())
+          }
           # send the query
           # condizione è una variabile logica che però può tornare valore a lunghezza zero 
           condizione<-!is.na(Misura) & !is.null(Misura)

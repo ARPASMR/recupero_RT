@@ -184,6 +184,14 @@ for (i in miavista$idsensore){
 msg<-paste("RecuperoRT-pgsql: inizio il ",data_inizio_recupero," e fine il ", now())
 write(msg,stdout())
 msg2<-paste('logger -is -p user.notice ',dQuote(msg), '-t "RecuperoRT"')
+## cancellazione dati più vecchi di 15gg fa ###
+
+datacancella<-strptime(orora-1296000,"%F %H:%M")
+cancella<-paste("delete * from realtime.m_osservazioni_tr where data_e_ora <",dQuote(datacancella))
+tmp <- try(dbExecute(mydb, cancella), silent=TRUE)
+if ('try-error' %in% class(tmp)) {
+    write(paste("RecuperoRT:",tmp),stderr())
+    }
 #print(msg2)
 #esito<-system(msg2,intern=FALSE)
 #esito<-system(paste('logger -is -p user.notice "RecuperoRT-pgsql: durata complessiva', time_spent, '" -t "RecuperoRT"'),intern=FALSE)

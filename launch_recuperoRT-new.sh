@@ -6,10 +6,10 @@
 #  s/S = short, ovvero recupero 1h
 #  l/L = long, ovvero recupero 24h
 #controllo se il container è già stato lanciato: se sì, ritardo l'esecuzione 
-# lo inserisco in un ciclo di attesa di 20 minuti, trascorsi i quali non eseguo il comando
+# lo inserisco in un ciclo di attesa di 10 minuti, trascorsi i quali non eseguo il comando
 if [ $LONG_SHORT == "s" ]
 then
-  numsec=1200
+  numsec=600
 else
   numsec=86400
 fi

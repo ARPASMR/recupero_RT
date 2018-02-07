@@ -24,7 +24,6 @@ rmsql.user<-Sys.getenv("USERID")
 rmsql.pwd<-Sys.getenv("USERPWD")
 long_or_short<-Sys.getenv("LONG_SHORT")
 debug<-Sys.getenv("DEBUG")
-Tipo='PP'
 Tipo<-Sys.getenv("TIPO")
 write(long_or_short,stdout())
 # posiziono l'inizio ai 10 minuti precedenti
@@ -62,7 +61,7 @@ mm<-data.frame(date=b,valore="NA")
 data_inizio_recupero<-now()
 drv<-dbDriver("PostgreSQL")
 mydb = dbConnect(drv, user=as.character(rmsql.user),password=as.character(rmsql.pwd), dbname=Sys.getenv("USERDB"), host=Sys.getenv("DBIP"))
-QuerySensori<-paste("select * from dati_di_base.anagraficasensori where datafine is NULL and nometipologia in (",Tipo,") order by frequenza")
+QuerySensori<-paste("select * from dati_di_base.anagraficasensori where datafine is NULL and nometipologia in (",dQuote(Tipo),") order by frequenza")
 vista=dbSendQuery(mydb,QuerySensori)
 miavista=fetch(vista,-1)
 #chiedo chi sono e da dove chiamo
@@ -186,7 +185,7 @@ for (i in miavista$idsensore){
     if (time_spent > timeout) {
 #    il tempo trascorso è maggiore del timeout: eseguo comunque la cancellazione dei dati prima di uscire
 #       esito<-system('logger -is -p user.warning "RecuperoRT-pgsql: timeout" -t "RecuperoRT"',intern=FALSE) 
-        write(paste("RecuperoRT-",Tipo," timeout",stderr())
+        write(paste("RecuperoRT-",sQuote(Tipo)," timeout"),stderr())
         datacancella<-strptime(orora-1296000,"%F %H:%M")
         cancella<-paste("delete from realtime.m_osservazioni_tr where data_e_ora <",sQuote(datacancella))
         tmp <- try(dbExecute(mydb, cancella), silent=TRUE)

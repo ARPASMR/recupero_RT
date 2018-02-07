@@ -113,15 +113,13 @@ for (i in miavista$idsensore){
     N<-nrow(v)
     if (N!=numero_intervalli){
       #se non ho 0 oppure non ne ho 7 allora mi mancano dei dati
-#      print(paste("Dati mancanti per IDsensore ", i))
       mm$valore[which(mm$date %in% v$data_e_ora)]<-v$misura
       #adesso mm contiene i valori NA solo per i dati mancanti
       y<-is.na(mm$valore)
       #grazie a y posso estrarre i valori nulli da chiedere
       hh<-mm$date[!y]
-   #  NomeTipologia<-v$nometipologia[1]
       M<-NROW(hh)
-#     print(paste("inizio ciclo su M=",M))
+#     ciclo sugli M valori mancanti      
       for(jj in 1:M){
         data_di_inizio<-hh[jj]
         data_di_fine.lt<-as.POSIXlt(data_di_inizio)

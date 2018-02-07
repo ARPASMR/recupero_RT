@@ -2,6 +2,13 @@
 # by MM
 # Script R
 # questa versione è studiata per fare il recupero di 1h ogni 10 min
+# seleziona anche la tipologia di recupero in funzione della variabile d'ambiente
+# variabili attese:
+# USERID    = utente del database postgres 
+# USERPWD   = password dell'utente del database
+# LONG_SHORT= se è 's' recupera una sola ora, altrimenti recupera 24 ore
+# DEBUG     = se è FALSE (default) non logga i messaggi aggiuntivi, altrimenti si (dev'essere TRUE)
+# TIPO      = indica la tipologia da recuperare: in questo modo ogni processo recupera una specifica tipologia
 
 library("DBI")
 library("httr")
@@ -14,6 +21,8 @@ rmsql.user<-Sys.getenv("USERID")
 rmsql.pwd<-Sys.getenv("USERPWD")
 long_or_short<-Sys.getenv("LONG_SHORT")
 debug<-Sys.getenv("DEBUG")
+Tipo='PP'
+Tipo<-Sys.getenv("TIPO")
 write(long_or_short,stdout())
 # posiziono l'inizio ai 10 minuti precedenti
 adesso<-strptime(now("UTC"),"%F %H:%M")
@@ -50,7 +59,8 @@ mm<-data.frame(date=b,valore="NA")
 data_inizio_recupero<-now()
 drv<-dbDriver("PostgreSQL")
 mydb = dbConnect(drv, user=as.character(rmsql.user),password=as.character(rmsql.pwd), dbname=Sys.getenv("USERDB"), host=Sys.getenv("DBIP"))
-vista=dbSendQuery(mydb,"select * from dati_di_base.anagraficasensori where datafine is NULL order by frequenza")
+QuerySensori<-paste("select * from dati_di_base.anagraficasensori where datafine is NULL and nometipologia=",Tipo," order by frequenza")
+vista=dbSendQuery(mydb,QuerySensori)
 miavista=fetch(vista,-1)
 #chiedo chi sono e da dove chiamo
 msg<-"hostname"
@@ -97,16 +107,13 @@ for (i in miavista$idsensore){
          IDfunzione<-3
   }
   for (IDop in lista) {
-   # print(paste("Sensore ID ",i))
     mm<-data.frame(date=b,valore="NA")
     v<-subset(mieidati,idsensore==i & idoperatore==IDop ,select=c(data_e_ora,misura,nometipologia))
     v$data_e_ora<-as.POSIXct(v$data_e_ora)
     N<-nrow(v)
-#    print(paste("Sensore ID",i," dati previsti",numero_intervalli,"dati effettivi",N))
     if (N!=numero_intervalli){
       #se non ho 0 oppure non ne ho 7 allora mi mancano dei dati
 #      print(paste("Dati mancanti per IDsensore ", i))
-      #mm$valore<-v$misura[which(mm$date %in% v$data_e_ora)]
       mm$valore[which(mm$date %in% v$data_e_ora)]<-v$misura
       #adesso mm contiene i valori NA solo per i dati mancanti
       y<-is.na(mm$valore)
@@ -174,17 +181,20 @@ for (i in miavista$idsensore){
     conta_update<-0
 # inserisco controllo per interruzione recupero se è passato troppo tempo
     time_spent<-difftime(now(),data_inizio_recupero,units="mins")
-#    print(paste("Tempo sul giro in minuti: ",time_spent))
+    print(paste("RecuperoRT: Acquisizione della tipologia", Tipo," in minuti: ",time_spent),stdout())
     if (time_spent > timeout) {
+#    il tempo trascorso è maggiore del timeout: eseguo comunque la cancellazione dei dati prima di uscire
 #       esito<-system('logger -is -p user.warning "RecuperoRT-pgsql: timeout" -t "RecuperoRT"',intern=FALSE) 
-       stop("Troppo tempo impiegato nel recupero: esco",stderr())
+        datacancella<-strptime(orora-1296000,"%F %H:%M")
+        cancella<-paste("delete * from realtime.m_osservazioni_tr where data_e_ora <",dQuote(datacancella))
+        tmp <- try(dbExecute(mydb, cancella), silent=TRUE)
+        if ('try-error' %in% class(tmp)) {
+           write(paste("RecuperoRT:",tmp),stderr())
+        }
+        stop("Troppo tempo impiegato nel recupero: esco",stderr())
     }    
   } #fine del ciclo sui IDop
 }   # fine del ciclo su idsensore
-msg<-paste("RecuperoRT-pgsql: inizio il ",data_inizio_recupero," e fine il ", now())
-write(msg,stdout())
-msg2<-paste('logger -is -p user.notice ',dQuote(msg), '-t "RecuperoRT"')
-## cancellazione dati più vecchi di 15gg fa ###
 
 datacancella<-strptime(orora-1296000,"%F %H:%M")
 cancella<-paste("delete * from realtime.m_osservazioni_tr where data_e_ora <",dQuote(datacancella))
@@ -192,7 +202,4 @@ tmp <- try(dbExecute(mydb, cancella), silent=TRUE)
 if ('try-error' %in% class(tmp)) {
     write(paste("RecuperoRT:",tmp),stderr())
     }
-#print(msg2)
-#esito<-system(msg2,intern=FALSE)
-#esito<-system(paste('logger -is -p user.notice "RecuperoRT-pgsql: durata complessiva', time_spent, '" -t "RecuperoRT"'),intern=FALSE)
 

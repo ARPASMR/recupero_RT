@@ -183,8 +183,9 @@ for (i in miavista$idsensore){
     if (time_spent > timeout) {
 #    il tempo trascorso è maggiore del timeout: eseguo comunque la cancellazione dei dati prima di uscire
 #       esito<-system('logger -is -p user.warning "RecuperoRT-pgsql: timeout" -t "RecuperoRT"',intern=FALSE) 
+        write(paste("RecuperoRT-",Tipo," timeout",stderr())
         datacancella<-strptime(orora-1296000,"%F %H:%M")
-        cancella<-paste("delete * from realtime.m_osservazioni_tr where data_e_ora <",dQuote(datacancella))
+        cancella<-paste("delete from realtime.m_osservazioni_tr where data_e_ora <",sQuote(datacancella))
         tmp <- try(dbExecute(mydb, cancella), silent=TRUE)
         if ('try-error' %in% class(tmp)) {
            write(paste("RecuperoRT:",tmp),stderr())
@@ -195,7 +196,7 @@ for (i in miavista$idsensore){
 }   # fine del ciclo su idsensore
 
 datacancella<-strptime(orora-1296000,"%F %H:%M")
-cancella<-paste("delete * from realtime.m_osservazioni_tr where data_e_ora <",dQuote(datacancella))
+cancella<-paste("delete from realtime.m_osservazioni_tr where data_e_ora <",sQuote(datacancella))
 tmp <- try(dbExecute(mydb, cancella), silent=TRUE)
 if ('try-error' %in% class(tmp)) {
     write(paste("RecuperoRT:",tmp),stderr())

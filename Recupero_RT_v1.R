@@ -9,6 +9,9 @@
 # LONG_SHORT= se è 's' recupera una sola ora, altrimenti recupera 24 ore
 # DEBUG     = se è FALSE (default) non logga i messaggi aggiuntivi, altrimenti si (dev'essere TRUE)
 # TIPO      = indica la tipologia da recuperare: in questo modo ogni processo recupera una specifica tipologia
+#             la sintassi è quella della clausola in di SQL
+#             es 'T' oppure 'T','I' ecc.
+#
 
 library("DBI")
 library("httr")
@@ -59,7 +62,7 @@ mm<-data.frame(date=b,valore="NA")
 data_inizio_recupero<-now()
 drv<-dbDriver("PostgreSQL")
 mydb = dbConnect(drv, user=as.character(rmsql.user),password=as.character(rmsql.pwd), dbname=Sys.getenv("USERDB"), host=Sys.getenv("DBIP"))
-QuerySensori<-paste("select * from dati_di_base.anagraficasensori where datafine is NULL and nometipologia='",sQuote(Tipo),"' order by frequenza")
+QuerySensori<-paste("select * from dati_di_base.anagraficasensori where datafine is NULL and nometipologia in (",Tipo,") order by frequenza")
 vista=dbSendQuery(mydb,QuerySensori)
 miavista=fetch(vista,-1)
 #chiedo chi sono e da dove chiamo

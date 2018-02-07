@@ -34,7 +34,7 @@ if (long_or_short=="s"){
     numero_intervalli<-7
     datainizio<-strptime(orora,"%F %H:%M")
     datafine<-strptime(orora+3600,"%F %H:%M")
-    timeout<-19
+    timeout<-9
     write("RecuperoRT: Richiesto recupero corto",stdout())
     } else {
     numero_intervalli<-145

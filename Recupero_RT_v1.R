@@ -37,7 +37,7 @@ if (long_or_short=="s"){
     datainizio<-strptime(orora,"%F %H:%M")
     datafine<-strptime(orora+3600,"%F %H:%M")
     timeout<-9
-    write(paste("RecuperoRT: Richiesto recupero corto per ",Tipo),stdout())
+    #write(paste("RecuperoRT: Richiesto recupero corto per ",Tipo),stdout())
     } else {
     numero_intervalli<-145
     datainizio<-strptime(orora-86400,"%F %H:%M")
@@ -56,7 +56,7 @@ options(useFancyQuotes = FALSE)
 datai=sQuote(datainizio)
 dataf=sQuote(datafine)
 #mm contiene i valori delle date e tutti gli NA
-write(paste("RecuperoRT: data di inizio",datainizio,"data di fine",datafine),stdout())
+write(paste("RecuperoRT: data di inizio",datainizio,"data di fine",datafine," per",Tipo),stdout())
 mm<-data.frame(date=b,valore="NA")
 data_inizio_recupero<-now()
 drv<-dbDriver("PostgreSQL")

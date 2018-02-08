@@ -181,7 +181,9 @@ for (i in miavista$idsensore){
     conta_update<-0
 # inserisco controllo per interruzione recupero se è passato troppo tempo
     time_spent<-difftime(now(),data_inizio_recupero,units="mins")
-    write(paste("RecuperoRT: Acquisizione della tipologia", dQuote(Tipo)," in minuti: ",time_spent),stdout())
+    if(debug){
+       write(paste("RecuperoRT: Acquisizione della tipologia", dQuote(Tipo)," in minuti: ",time_spent),stdout())
+    }
     if (time_spent > timeout) {
 #    il tempo trascorso è maggiore del timeout: eseguo comunque la cancellazione dei dati prima di uscire
 #       esito<-system('logger -is -p user.warning "RecuperoRT-pgsql: timeout" -t "RecuperoRT"',intern=FALSE) 

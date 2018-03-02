@@ -7,6 +7,7 @@
 #  l/L = long, ovvero recupero 24h
 #controllo se il container è già stato lanciato: se sì, ritardo l'esecuzione 
 # lo inserisco in un ciclo di attesa di 10 minuti, trascorsi i quali non eseguo il comando
+nomescript=${0##*/}
 if [ $LONG_SHORT == "s" ]
 then
   numsec=600
@@ -25,6 +26,7 @@ do
 #3. lancio lo script
 if [ $SECONDS -ge $numsec ]
 then
+ echo "RecuperoRT lanciato da $HOSTNAME per $TIPO"
  Rscript Recupero_RT_v1.R
  SECONDS=0
 fi

@@ -61,7 +61,7 @@ mm<-data.frame(date=b,valore="NA")
 data_inizio_recupero<-now()
 drv<-dbDriver("PostgreSQL")
 mydb = dbConnect(drv, user=as.character(rmsql.user),password=as.character(rmsql.pwd), dbname=Sys.getenv("USERDB"), host=Sys.getenv("DBIP"))
-QuerySensori<-paste("select * from dati_di_base.anagraficasensori where datafine is NULL and nometipologia in (",Tipo,") order by frequenza")
+QuerySensori<-paste("select * from dati_di_base.anagraficasensori where datafine is NULL and nometipologia in (",sQuote(Tipo),") order by frequenza")
 vista=dbSendQuery(mydb,QuerySensori)
 miavista=fetch(vista,-1)
 #chiedo chi sono e da dove chiamo
@@ -97,6 +97,7 @@ for (i in miavista$idsensore){
   }
   # selezione IDfunzione
    IDfunzione<-1
+  if (NomeTipologia=='PP'){IDfunzione<-3}
   # selezione granularity
   IDperiodo<-1
   if (Frequenza==30){

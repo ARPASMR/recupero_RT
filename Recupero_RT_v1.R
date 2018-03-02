@@ -154,7 +154,7 @@ for (i in miavista$idsensore){
           }
           # send the query
           # condizione è una variabile logica che però può tornare valore a lunghezza zero 
-          condizione<-!is.na(Misura) & !is.null(Misura)
+          condizione<-!is.na(Misura) & !is.null(Misura) & Misura!=-999
           if (!is.logical(condizione)| length(condizione)==0 ){
               condizione<-FALSE #forzo condizione ad essere un valore logico
           }

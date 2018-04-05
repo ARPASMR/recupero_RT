@@ -12,7 +12,7 @@ if [ $LONG_SHORT == "s" ]
 then
   numsec=600
 else
-  numsec=86400
+  numsec=21600
 fi
 SECONDS=$numsec
 LOCKFILE='usr/local/src/myscripts/.lock'
